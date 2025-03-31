@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const API_KEY = "3"; // TheSportsDB API key
-  const TEAM_ID = "133836"; // Updated Plymouth Argyle ID
+  const TEAM_ID = "133836"; // Plymouth Argyle ID
   const CHAMPIONSHIP_ID = "4329";
   let lastRefresh = 0;
 
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventsnext.php?id=${TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
-        const events = (data.events || []).slice(0, 5);
+        const events = (data.events || []).filter(e => e.strLeague?.includes("Championship")).slice(0, 5);
         const ticker = document.getElementById("top-ticker");
         if (ticker) {
           ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const plyLogo = document.getElementById("plymouth-logo");
         const oppLogo = document.getElementById("opponent-logo");
-        if (plyLogo) plyLogo.src = `https://www.thesportsdb.com/images/media/team/badge/vwxupr1422195529.png`;
+        if (plyLogo) plyLogo.src = `https://r2.thesportsdb.com/images/media/team/badge/wod5cj1689630278.png`;
         if (oppLogo && event.strAwayTeamBadge) oppLogo.src = event.strHomeTeam === "Plymouth Argyle" ? event.strAwayTeamBadge : event.strHomeTeamBadge;
 
         return fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookupevent.php?id=${event.idEvent}`);
