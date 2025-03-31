@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const TEAM_ID = 1357; // Plymouth Argyle for API-Football
   const SPORTSDB_TEAM_ID = "133836"; // Plymouth Argyle for TheSportsDB
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
-  let lastRefrexsh = 0;
+  let lastRefresh = 0;
 
   setInterval(() => {
     const now = Date.now();
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://v3.football.api-sports.io/fixtures?team=${TEAM_ID}&next=5`, {
       method: "GET",
       headers: {
-        "x-api-key": API_FOOTBALL_KEY // Direct API key, not via RapidAPI
+        "x-api-key": API_FOOTBALL_KEY
       }
     })
       .then(res => res.json())
@@ -118,23 +118,46 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fetchPrevious() {
-    fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_API_KEY}/eventslast.php?id=${SPORTSDB_TEAM_ID}`)
+    fetch(`https://v3.football.api-sports.io/fixtures?team=${TEAM_ID}&last=5`, {
+      method: "GET",
+      headers: {
+        "x-api-key": API_FOOTBALL_KEY
+      }
+    })
       .then(res => res.json())
       .then(data => {
-        const events = (data.results || []).slice(0, 5);
-        const summaries = events.map(event => {
-          const result = `${event.dateEvent} - ${event.strHomeTeam} ${event.intHomeScore} : ${event.intAwayScore} ${event.strAwayTeam}`;
-          const scorers = [event.strHomeGoalDetails, event.strAwayGoalDetails].filter(Boolean).join(" | ");
-          const extra = [];
-          if (scorers) extra.push("Scorers: " + scorers);
-          if (event.strVideo) extra.push(`Match Report: ${event.strVideo}`);
-          return [result, ...extra].join("  •  ");
+        const matches = data.response;
+        if (!matches || matches.length === 0) throw new Error("No previous matches found");
+
+        const summaries = matches.map(match => {
+          const date = new Date(match.fixture.date).toISOString().split("T")[0];
+          const home = match.teams.home.name;
+          const away = match.teams.away.name;
+          const score = `${match.goals.home} : ${match.goals.away}`;
+          return `${date} – ${home} ${score} ${away}`;
         });
 
         const ticker = document.getElementById("bottom-ticker");
-        if (ticker) {
-          ticker.innerText = summaries.join("   ●   ");
-        }
+        if (ticker) ticker.innerText = summaries.join("   ●   ");
+      })
+      .catch(err => {
+        console.warn("Falling back to SportsDB for previous matches:", err);
+        fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_API_KEY}/eventslast.php?id=${SPORTSDB_TEAM_ID}`)
+          .then(res => res.json())
+          .then(data => {
+            const events = (data.results || []).slice(0, 5);
+            const summaries = events.map(event => {
+              const result = `${event.dateEvent} - ${event.strHomeTeam} ${event.intHomeScore} : ${event.intAwayScore} ${event.strAwayTeam}`;
+              const scorers = [event.strHomeGoalDetails, event.strAwayGoalDetails].filter(Boolean).join(" | ");
+              const extra = [];
+              if (scorers) extra.push("Scorers: " + scorers);
+              if (event.strVideo) extra.push(`Match Report: ${event.strVideo}`);
+              return [result, ...extra].join("  •  ");
+            });
+
+            const ticker = document.getElementById("bottom-ticker");
+            if (ticker) ticker.innerText = summaries.join("   ●   ");
+          });
       });
   }
 
