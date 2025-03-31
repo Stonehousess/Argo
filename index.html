@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
+$1  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Argo Football Ticker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="style.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="top-ticker" class="ticker">Loading upcoming matches...</div>
-
-  <div id="lineup-container">
-    <div class="team-column" id="plymouth-lineup">
-      <h2>Plymouth Argyle</h2>
-      <ul></ul>
-    </div>
-    <div class="team-column" id="opponent-lineup">
-      <h2>Opponent</h2>
-      <ul></ul>
-    </div>
+  <div class="ticker-container">
+    <div id="top-ticker" class="ticker">Loading upcoming matches...</div>
   </div>
 
-  <div id="refresh-wrapper">
-    <button id="refresh-button">🔁 Refresh</button>
-  </div>
+  <main>
+    <div id="lineup-container">
+      <div class="team-column">
+        <img id="plymouth-logo" src="" alt="Plymouth Logo" />
+        <ul id="plymouth-lineup"></ul>
+      </div>
+      <div class="team-column">
+        <img id="opponent-logo" src="" alt="Opponent Logo" />
+        <ul id="opponent-lineup"></ul>
+      </div>
+    </div>
+    <button id="refresh-button">Refresh</button>
+  </main>
 
-  <div id="bottom-ticker" class="ticker">Loading previous matches...</div>
+  <div class="ticker-container">
+    <div id="bottom-ticker" class="ticker">Loading previous results...</div>
+  </div>
 
   <script src="main.js"></script>
 </body>
