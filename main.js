@@ -27,18 +27,13 @@ function fetchUpcoming() {
   fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
     .then(res => res.json())
     .then(data => {
-      const events = (data.events || []).filter(event => {
-        const home = event.strHomeTeam?.toLowerCase() || "";
-        const away = event.strAwayTeam?.toLowerCase() || "";
-        return home.includes("plymouth") || away.includes("plymouth");
-      });
+      console.log("Raw events:", data.events);
 
-      // Sort by date just in case
-      events.sort((a, b) => new Date(a.dateEvent) - new Date(b.dateEvent));
+      const events = (data.events || []).slice(0, 3);
 
       const ticker = document.getElementById("top-ticker");
       if (ticker && events.length > 0) {
-        const upcoming = events.slice(0, 3).map(event => {
+        const upcoming = events.map(event => {
           const text = `${event.dateEvent} – ${event.strHomeTeam} vs ${event.strAwayTeam}`;
           return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
         });
@@ -48,7 +43,6 @@ function fetchUpcoming() {
       }
     });
 }
-
 
 
   function fetchPrevious() {
