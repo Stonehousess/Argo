@@ -1,4 +1,4 @@
-// Argo Football Ticker - main.js with API-Football + TheSportsDB fallback
+// Argo Football Ticker - main.js with fallback from direct API-Football to SportsDB
 
 document.addEventListener("DOMContentLoaded", () => {
   const SPORTSDB_API_KEY = "3";
@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const TEAM_ID = 1357; // Plymouth Argyle for API-Football
   const SPORTSDB_TEAM_ID = "133836"; // Plymouth Argyle for TheSportsDB
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
-  let lastRefresh = 0;
+  let lastRefrexsh = 0;
 
   setInterval(() => {
     const now = Date.now();
@@ -61,14 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://v3.football.api-sports.io/fixtures?team=${TEAM_ID}&next=5`, {
       method: "GET",
       headers: {
-        "X-RapidAPI-Key": API_FOOTBALL_KEY,
-        "X-RapidAPI-Host": "v3.football.api-sports.io"
+        "x-api-key": API_FOOTBALL_KEY // Direct API key, not via RapidAPI
       }
     })
       .then(res => res.json())
       .then(data => {
         const matches = data.response;
         console.log("Fetched Plymouth upcoming fixtures:", matches);
+
+        if (!matches || matches.length === 0) {
+          console.warn("No fixtures returned from API-Football. Falling back.");
+          fetchUpcomingFromSportsDB();
+          return;
+        }
 
         const ticker = document.getElementById("top-ticker");
         const upcoming = matches.map(match => {
@@ -86,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         incrementApiCallCount();
       })
       .catch(err => {
-        console.error("Error fetching upcoming fixtures:", err);
+        console.error("API-Football failed:", err);
         fetchUpcomingFromSportsDB();
       });
   }
