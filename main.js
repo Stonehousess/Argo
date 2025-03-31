@@ -67,7 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const plyLogo = document.getElementById("plymouth-logo");
         const oppLogo = document.getElementById("opponent-logo");
         if (plyLogo) plyLogo.src = `https://r2.thesportsdb.com/images/media/team/badge/wod5cj1689630278.png`;
-        if (oppLogo && event.strAwayTeamBadge) oppLogo.src = event.strHomeTeam === "Plymouth Argyle" ? event.strAwayTeamBadge : event.strHomeTeamBadge;
+        if (oppLogo) {
+  const isHome = event.strHomeTeam === "Plymouth Argyle";
+  const badge = isHome ? event.strAwayTeamBadge : event.strHomeTeamBadge;
+  if (badge) oppLogo.src = badge;
+}
 
         return fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookupevent.php?id=${event.idEvent}`);
       })
