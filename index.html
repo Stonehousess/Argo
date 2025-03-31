@@ -1,2 +1,32 @@
-<!-- Argo index.html -->
-<html><head><title>Argo</title></head><body>Argo Football Ticker</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Argo Football Ticker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="top-ticker" class="ticker">Loading upcoming matches...</div>
+
+  <div id="lineup-container">
+    <div class="team-column" id="plymouth-lineup">
+      <h2>Plymouth Argyle</h2>
+      <ul></ul>
+    </div>
+    <div class="team-column" id="opponent-lineup">
+      <h2>Opponent</h2>
+      <ul></ul>
+    </div>
+  </div>
+
+  <div id="refresh-wrapper">
+    <button id="refresh-button">🔁 Refresh</button>
+  </div>
+
+  <div id="bottom-ticker" class="ticker">Loading previous matches...</div>
+
+  <script src="main.js"></script>
+</body>
+</html>
