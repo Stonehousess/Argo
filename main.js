@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventsnext.php?id=${TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
-        const events = (data.events || []).filter(e => e.strLeague?.includes("Championship")).slice(0, 3);
+        const events = (data.events || []).filter(e => e.strHomeTeam && e.strAwayTeam).slice(0, 3);
         const ticker = document.getElementById("top-ticker");
         if (ticker && events.length > 0) {
           ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
