@@ -23,6 +23,16 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchPrevious();
     fetchLineups();
   }
+
+// ===== Argo Main.js =====
+
+function fetchAll() {
+  lastRefresh = Date.now();
+  fetchUpcoming();
+  fetchPrevious();
+  fetchLineups();
+}
+
 function fetchUpcoming() {
   const matchIds = ["2081976", "2081993", "2082000"]; // Confirmed Plymouth matches
 
@@ -31,8 +41,9 @@ function fetchUpcoming() {
       .then(res => res.json())
       .then(data => data.events?.[0])
   )).then(matches => {
-    const ticker = document.getElementById("top-ticker");
+    console.log("Matches pulled from IDs:", matches); // Debug log
 
+    const ticker = document.getElementById("top-ticker");
     const upcoming = matches
       .filter(Boolean)
       .map(event => {
@@ -46,6 +57,7 @@ function fetchUpcoming() {
   });
 }
 
+// You can continue with fetchPrevious() and fetchLineups() below...
 
   function fetchPrevious() {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
