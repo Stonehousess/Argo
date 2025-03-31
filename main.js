@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(data => {
         const events = (data.events || []).filter(e => e.strLeague?.includes("Championship")).slice(0, 3);
         const ticker = document.getElementById("top-ticker");
-        if (ticker) {
+        if (ticker && events.length > 0) {
           ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
         }
       });
