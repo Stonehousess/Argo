@@ -1,90 +1,66 @@
-/* Argo Football Ticker - style.css */
 body {
+  margin: 0;
+  font-family: Arial, sans-serif;
   background-color: black;
   color: gold;
-  font-family: 'Orbitron', sans-serif;
   font-size: 23px;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+}
+
+.ticker-container {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: black;
+  padding: 10px 0;
 }
 
 .ticker {
-  white-space: nowrap;
-  overflow: hidden;
-  box-sizing: border-box;
-  padding: 10px 0;
-  background: black;
-  color: gold;
-  border-top: 2px solid gold;
-  border-bottom: 2px solid gold;
-  animation: ticker-scroll 20s linear infinite;
-  text-align: center;
+  display: inline-block;
+  animation: scroll-left 30s linear infinite;
 }
 
-@keyframes ticker-scroll {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 #lineup-container {
   display: flex;
   justify-content: space-around;
-  align-items: flex-start;
   padding: 20px;
-  flex-wrap: wrap;
-  background: black;
-  border-top: 2px solid gold;
-  border-bottom: 2px solid gold;
 }
 
 .team-column {
-  flex: 1;
-  margin: 10px;
-  min-width: 250px;
-}
-
-.team-column h2 {
-  font-size: 26px;
-  color: gold;
+  width: 45%;
   text-align: center;
 }
 
-.team-column ul {
+.team-column img {
+  width: 100px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+ul {
   list-style: none;
   padding: 0;
 }
 
-.team-column li {
-  padding: 4px 0;
-  text-align: center;
-  color: gold;
-}
-
-#refresh-wrapper {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-#refresh-button {
-  background: transparent;
-  color: gold;
-  font-size: 20px;
-  padding: 10px 20px;
-  border: 2px solid gold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#refresh-button:hover {
-  background: gold;
+button {
+  background-color: gold;
   color: black;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
 }
 
-img {
-  vertical-align: middle;
-  height: 24px;
-  margin-right: 8px;
+button:hover {
+  background-color: darkorange;
 }
