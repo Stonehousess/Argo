@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchLineups();
   }
 function fetchUpcoming() {
-  fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
+  fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133602")
     .then(res => res.json())
     .then(data => {
       const events = (data.events || []).filter(e => {
