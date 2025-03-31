@@ -24,24 +24,24 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchLineups();
   }
 function fetchUpcoming() {
-  fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
-    .then(res => res.json())
-    .then(data => {
-      console.log("Raw events:", data.events);
+  const matchIds = ["2081976", "2081993", "2082000"]; // Correct Plymouth matches
 
-      const events = (data.events || []).slice(0, 3);
+  Promise.all(matchIds.map(id =>
+    fetch(`https://www.thesportsdb.com/api/v1/json/3/lookupevent.php?id=${id}`)
+      .then(res => res.json())
+      .then(data => data.events?.[0])
+  )).then(matches => {
+    const ticker = document.getElementById("top-ticker");
 
-      const ticker = document.getElementById("top-ticker");
-      if (ticker && events.length > 0) {
-        const upcoming = events.map(event => {
-          const text = `${event.dateEvent} – ${event.strHomeTeam} vs ${event.strAwayTeam}`;
-          return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
-        });
-        ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
-      } else {
-        ticker.innerText = "No upcoming Plymouth matches available.";
-      }
-    });
+    const upcoming = matches
+      .filter(Boolean)
+      .map(event => {
+        const text = `${event.dateEvent} – ${event.strHomeTeam} vs ${event.strAwayTeam}`;
+        return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
+      });
+
+    ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+  });
 }
 
 
