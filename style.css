@@ -17,6 +17,7 @@ body {
 .ticker {
   display: inline-block;
   animation: scroll-left 30s linear infinite;
+  will-change: transform;
 }
 
 @keyframes scroll-left {
