@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const API_KEY = "3"; // TheSportsDB API key
-  const TEAM_ID = "133739"; // Plymouth Argyle ID
+  const TEAM_ID = "133836"; // Updated Plymouth Argyle ID
   const CHAMPIONSHIP_ID = "4329";
   let lastRefresh = 0;
 
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (now - lastRefresh > 300000) fetchAll();
   }, 10000);
 
-  document.getElementById("refresh-button").addEventListener("click", () => {
+  document.getElementById("refresh-button")?.addEventListener("click", () => {
     const now = Date.now();
     if (now - lastRefresh > 60000) fetchAll();
   });
@@ -30,7 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(data => {
         const events = data.events || [];
         const ticker = document.getElementById("top-ticker");
-        ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
+        if (ticker) {
+          ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
+        }
       });
   }
 
@@ -51,7 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const others = (data.events || []).filter(e => e.idEvent !== plymouthMatch.idEvent).slice(0, 4);
             const otherScores = others.map(e => `${e.strHomeTeam} ${e.intHomeScore} : ${e.intAwayScore} ${e.strAwayTeam}`);
             const ticker = document.getElementById("bottom-ticker");
-            ticker.innerText = [...summary, ...otherScores].join("   ●   ");
+            if (ticker) {
+              ticker.innerText = [...summary, ...otherScores].join("   ●   ");
+            }
           });
       });
   }
@@ -61,8 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(res => res.json())
       .then(data => {
         const event = data.results[0];
-        document.getElementById("plymouth-logo").src = `https://www.thesportsdb.com/images/media/team/badge/vwxupr1422195529.png`;
-        document.getElementById("opponent-logo").src = event.strAwayTeam === "Plymouth" ? event.strHomeTeamBadge : event.strAwayTeamBadge;
+        const plyLogo = document.getElementById("plymouth-logo");
+        const oppLogo = document.getElementById("opponent-logo");
+        if (plyLogo && oppLogo) {
+          plyLogo.src = `https://www.thesportsdb.com/images/media/team/badge/vwxupr1422195529.png`;
+          oppLogo.src = event.strAwayTeam === "Plymouth Argyle" ? event.strHomeTeamBadge : event.strAwayTeamBadge;
+        }
         return fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookupevent.php?id=${event.idEvent}`);
       })
       .then(res => res.json())
@@ -75,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderLineup(containerId, forwards, mids, defs, gk) {
     const container = document.querySelector(`#${containerId} ul`);
+    if (!container) return;
     container.innerHTML = "";
     [...(forwards?.split("; ") || []), ...(mids?.split("; ") || []), ...(defs?.split("; ") || []), ...(gk?.split("; ") || [])].forEach(name => {
       const li = document.createElement("li");
