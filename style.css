@@ -18,7 +18,7 @@ body {
   display: inline-block;
   animation: scroll-left 30s linear infinite;
   will-change: transform;
-  background-color: red;
+  background-color: green;
 }
 
 @keyframes scroll-left {
