@@ -28,10 +28,7 @@ function fetchUpcoming() {
   fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
     .then(res => res.json())
     .then(data => {
-      const events = (data.events || []).filter(e =>
-        e.strLeague?.toLowerCase().includes("championship") &&
-        e.strHomeTeam && e.strAwayTeam
-      );
+      const events = (data.events || []);
 
       const ticker = document.getElementById("top-ticker");
       if (ticker && events.length > 0) {
