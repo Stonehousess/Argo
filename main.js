@@ -1,8 +1,8 @@
 // Argo Football Ticker - main.js with fallback from direct API-Football to SportsDB
-
+import { API_KEY } from './config.js';
 document.addEventListener("DOMContentLoaded", () => {
   const SPORTSDB_API_KEY = "3";
-  const API_FOOTBALL_KEY = "15dc1d1bd5e6766f52304b50ac41770b";
+  const API_FOOTBALL_KEY = API_KEY;
   const TEAM_ID = 1357; // Plymouth Argyle for API-Football
   const SPORTSDB_TEAM_ID = "133836"; // Plymouth Argyle for TheSportsDB
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
