@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventsnext.php?id=${TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
-        const events = data.events || [];
+        const events = (data.events || []).slice(0, 5);
         const ticker = document.getElementById("top-ticker");
         if (ticker) {
           ticker.innerText = events.map(e => `${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam}`).join("   ●   ");
@@ -40,23 +40,20 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
-        const events = data.results || [];
-        const plymouthMatch = events[0];
-        const summary = [`${plymouthMatch.dateEvent} - ${plymouthMatch.strHomeTeam} ${plymouthMatch.intHomeScore} : ${plymouthMatch.intAwayScore} ${plymouthMatch.strAwayTeam}`];
-        const scorers = [plymouthMatch.strHomeGoalDetails, plymouthMatch.strAwayGoalDetails].filter(Boolean).join(" | ");
-        if (scorers) summary.push("Scorers: " + scorers);
-        if (plymouthMatch.strVideo) summary.push(`Match Report: ${plymouthMatch.strVideo}`);
+        const events = (data.results || []).slice(0, 5);
+        const summaries = events.map(event => {
+          const result = `${event.dateEvent} - ${event.strHomeTeam} ${event.intHomeScore} : ${event.intAwayScore} ${event.strAwayTeam}`;
+          const scorers = [event.strHomeGoalDetails, event.strAwayGoalDetails].filter(Boolean).join(" | ");
+          const extra = [];
+          if (scorers) extra.push("Scorers: " + scorers);
+          if (event.strVideo) extra.push(`Match Report: ${event.strVideo}`);
+          return [result, ...extra].join("  •  ");
+        });
 
-        fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventsround.php?id=${CHAMPIONSHIP_ID}&r=${plymouthMatch.intRound}&s=${plymouthMatch.strSeason}`)
-          .then(res => res.json())
-          .then(data => {
-            const others = (data.events || []).filter(e => e.idEvent !== plymouthMatch.idEvent).slice(0, 4);
-            const otherScores = others.map(e => `${e.strHomeTeam} ${e.intHomeScore} : ${e.intAwayScore} ${e.strAwayTeam}`);
-            const ticker = document.getElementById("bottom-ticker");
-            if (ticker) {
-              ticker.innerText = [...summary, ...otherScores].join("   ●   ");
-            }
-          });
+        const ticker = document.getElementById("bottom-ticker");
+        if (ticker) {
+          ticker.innerText = summaries.join("   ●   ");
+        }
       });
   }
 
@@ -64,18 +61,20 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
-        const event = data.results[0];
+        const event = data.results?.[0];
+        if (!event) return;
+
         const plyLogo = document.getElementById("plymouth-logo");
         const oppLogo = document.getElementById("opponent-logo");
-        if (plyLogo && oppLogo) {
-          plyLogo.src = `https://www.thesportsdb.com/images/media/team/badge/vwxupr1422195529.png`;
-          oppLogo.src = event.strAwayTeam === "Plymouth Argyle" ? event.strHomeTeamBadge : event.strAwayTeamBadge;
-        }
+        if (plyLogo) plyLogo.src = `https://www.thesportsdb.com/images/media/team/badge/vwxupr1422195529.png`;
+        if (oppLogo && event.strAwayTeamBadge) oppLogo.src = event.strHomeTeam === "Plymouth Argyle" ? event.strAwayTeamBadge : event.strHomeTeamBadge;
+
         return fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookupevent.php?id=${event.idEvent}`);
       })
       .then(res => res.json())
       .then(data => {
-        const event = data.events[0];
+        const event = data.events?.[0];
+        if (!event) return;
         renderLineup("plymouth-lineup", event.strHomeLineupForward, event.strHomeLineupMidfield, event.strHomeLineupDefense, event.strHomeLineupGoalkeeper);
         renderLineup("opponent-lineup", event.strAwayLineupForward, event.strAwayLineupMidfield, event.strAwayLineupDefense, event.strAwayLineupGoalkeeper);
       });
