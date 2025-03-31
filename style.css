@@ -1,4 +1,4 @@
-	body {
+body {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: black;
@@ -11,11 +11,12 @@
   overflow: hidden;
   position: relative;
   background-color: black;
+  padding: 10px 0;
 }
 
 .ticker {
   display: inline-block;
-  animation: scroll-left 15s linear infinite;
+  animation: scroll-left 30s linear infinite;
   will-change: transform;
   white-space: nowrap;
   min-width: 200%;
@@ -23,10 +24,10 @@
 
 @keyframes scroll-left {
   0% {
-    transform: translateX(0%);
+    transform: translateX(100%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
