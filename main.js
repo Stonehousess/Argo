@@ -1,12 +1,13 @@
-// Argo Football Ticker - main.js
+// Argo Football Ticker - main.js with API-Football + TheSportsDB fallback
 
 document.addEventListener("DOMContentLoaded", () => {
-  const API_KEY = "3"; // TheSportsDB API key
-  const TEAM_ID = "133836"; // Plymouth Argyle ID
-  const CHAMPIONSHIP_ID = "4329";
+  const SPORTSDB_API_KEY = "3";
+  const API_FOOTBALL_KEY = "15dc1d1bd5e6766f52304b50ac41770b";
+  const TEAM_ID = 1357; // Plymouth Argyle for API-Football
+  const SPORTSDB_TEAM_ID = "133836"; // Plymouth Argyle for TheSportsDB
+  const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
   let lastRefresh = 0;
 
-  // Auto-refresh every 5 minutes
   setInterval(() => {
     const now = Date.now();
     if (now - lastRefresh > 300000) fetchAll();
@@ -24,43 +25,95 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchLineups();
   }
 
-// ===== Argo Main.js =====
+  function getApiCallCount() {
+    const today = new Date().toISOString().split("T")[0];
+    const record = JSON.parse(localStorage.getItem("apiLimitRecord")) || {};
+    return record.date === today ? record.count : 0;
+  }
 
-function fetchAll() {
-  lastRefresh = Date.now();
-  fetchUpcoming();
-  fetchPrevious();
-  fetchLineups();
-}
-
-function fetchUpcoming() {
-  const matchIds = ["2081976", "2081993", "2082000"]; // Confirmed Plymouth matches
-
-  Promise.all(matchIds.map(id =>
-    fetch(`https://www.thesportsdb.com/api/v1/json/3/lookupevent.php?id=${id}`)
-      .then(res => res.json())
-      .then(data => data.events?.[0])
-  )).then(matches => {
-    console.log("Matches pulled from IDs:", matches); // Debug log
-
-    const ticker = document.getElementById("top-ticker");
-    const upcoming = matches
-      .filter(Boolean)
-      .map(event => {
-        const text = `${event.dateEvent} – ${event.strHomeTeam} vs ${event.strAwayTeam}`;
-        return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
-      });
-
-    if (ticker) {
-      ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+  function incrementApiCallCount() {
+    const today = new Date().toISOString().split("T")[0];
+    let record = JSON.parse(localStorage.getItem("apiLimitRecord")) || {};
+    if (record.date !== today) {
+      record = { date: today, count: 0 };
     }
-  });
-}
+    record.count += 1;
+    localStorage.setItem("apiLimitRecord", JSON.stringify(record));
+  }
 
-// You can continue with fetchPrevious() and fetchLineups() below...
+  function shouldFetchNewData() {
+    const lastFetch = localStorage.getItem("lastApiFetchTime");
+    return !lastFetch || (Date.now() - parseInt(lastFetch)) > CACHE_DURATION;
+  }
+
+  function fetchUpcoming() {
+    if (getApiCallCount() >= 95) {
+      console.warn("API-Football limit reached. Falling back to TheSportsDB.");
+      fetchUpcomingFromSportsDB();
+      return;
+    }
+
+    if (!shouldFetchNewData()) {
+      console.log("Using cached upcoming match data.");
+      return;
+    }
+
+    fetch(`https://v3.football.api-sports.io/fixtures?team=${TEAM_ID}&next=5`, {
+      method: "GET",
+      headers: {
+        "X-RapidAPI-Key": API_FOOTBALL_KEY,
+        "X-RapidAPI-Host": "v3.football.api-sports.io"
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const matches = data.response;
+        console.log("Fetched Plymouth upcoming fixtures:", matches);
+
+        const ticker = document.getElementById("top-ticker");
+        const upcoming = matches.map(match => {
+          const home = match.teams.home.name;
+          const away = match.teams.away.name;
+          const date = new Date(match.fixture.date).toISOString().split("T")[0];
+          return `<a href='https://www.api-football.com/fixture/${match.fixture.id}' target='_blank'>${date} – ${home} vs ${away}</a>`;
+        });
+
+        if (ticker) {
+          ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+        }
+
+        localStorage.setItem("lastApiFetchTime", Date.now().toString());
+        incrementApiCallCount();
+      })
+      .catch(err => {
+        console.error("Error fetching upcoming fixtures:", err);
+        fetchUpcomingFromSportsDB();
+      });
+  }
+
+  function fetchUpcomingFromSportsDB() {
+    const matchIds = ["2081976", "2081993", "2082000"];
+    Promise.all(matchIds.map(id =>
+      fetch(`https://www.thesportsdb.com/api/v1/json/3/lookupevent.php?id=${id}`)
+        .then(res => res.json())
+        .then(data => data.events?.[0])
+    )).then(matches => {
+      const ticker = document.getElementById("top-ticker");
+      const upcoming = matches
+        .filter(Boolean)
+        .map(event => {
+          const text = `${event.dateEvent} – ${event.strHomeTeam} vs ${event.strAwayTeam}`;
+          return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
+        });
+
+      if (ticker) {
+        ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+      }
+    });
+  }
 
   function fetchPrevious() {
-    fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
+    fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_API_KEY}/eventslast.php?id=${SPORTSDB_TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
         const events = (data.results || []).slice(0, 5);
@@ -81,7 +134,7 @@ function fetchUpcoming() {
   }
 
   function fetchLineups() {
-    fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
+    fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_API_KEY}/eventslast.php?id=${SPORTSDB_TEAM_ID}`)
       .then(res => res.json())
       .then(data => {
         const event = data.results?.[0];
@@ -95,7 +148,7 @@ function fetchUpcoming() {
         const badge = isHome ? event.strAwayTeamBadge : event.strHomeTeamBadge;
         if (oppLogo && badge) oppLogo.src = badge;
 
-        return fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/lookupevent.php?id=${event.idEvent}`);
+        return fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_API_KEY}/lookupevent.php?id=${event.idEvent}`);
       })
       .then(res => res.json())
       .then(data => {
@@ -124,6 +177,5 @@ function fetchUpcoming() {
     }
   }
 
-  // Initial load
   fetchAll();
 });
