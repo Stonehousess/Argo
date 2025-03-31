@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchLineups();
   }
 function fetchUpcoming() {
-  const matchIds = ["2081976", "2081993", "2082000"]; // Correct Plymouth matches
+  const matchIds = ["2081976", "2081993", "2082000"]; // Confirmed Plymouth matches
 
   Promise.all(matchIds.map(id =>
     fetch(`https://www.thesportsdb.com/api/v1/json/3/lookupevent.php?id=${id}`)
@@ -40,7 +40,9 @@ function fetchUpcoming() {
         return `<a href='https://www.thesportsdb.com/event/${event.idEvent}' target='_blank'>${text}</a>`;
       });
 
-    ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+    if (ticker) {
+      ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
+    }
   });
 }
 
