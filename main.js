@@ -28,14 +28,29 @@ function fetchUpcoming() {
   fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
     .then(res => res.json())
     .then(data => {
-      const events = (data.events || []);
+      const events = (data.events || []).filter(e =>
+        e.strHomeTeam?.toLowerCase().includes("plymouth") ||
+        e.strAwayTeam?.toLowerCase().includes("plymouth")
+      );
+
+      // Sort by date
+      events.sort((a, b) => new Date(a.dateEvent) - new Date(b.dateEvent));
+
+      // [Optional] Debug log
+      console.log("Filtered Upcoming Events:");
+      events.forEach(e =>
+        console.log(`${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam} [${e.idEvent}]`)
+      );
 
       const ticker = document.getElementById("top-ticker");
       if (ticker && events.length > 0) {
-        const event = events[0]; // Only the next valid one
-        ticker.innerText = `${event.dateEvent} - ${event.strHomeTeam} vs ${event.strAwayTeam}`;
+        // Display next 3 matches
+        const upcoming = events.slice(0, 3).map(e =>
+          `${e.dateEvent} – ${e.strHomeTeam} vs ${e.strAwayTeam}`
+        );
+        ticker.innerText = upcoming.join("   •   ");
       } else {
-        ticker.innerText = "No upcoming matches available.";
+        ticker.innerText = "No upcoming Plymouth matches available.";
       }
     });
 }
