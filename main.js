@@ -25,25 +25,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 function fetchUpcoming() {
-  fetch("https://api.football-data.org/v4/teams/61/matches?status=SCHEDULED&limit=5", {
-    headers: {
-      "X-Auth-Token": "8ec32f4169b4461eac16ea79a1befe01"
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-    const matches = data.matches || [];
-    const ticker = document.getElementById("top-ticker");
-    if (ticker && matches.length > 0) {
-      const output = matches.map(m =>
-        `${m.utcDate.slice(0, 10)} - ${m.homeTeam.name} vs ${m.awayTeam.name}`
-      ).join("   ●   ");
-      ticker.innerText = output;
-    } else {
-      ticker.innerText = "No upcoming matches available.";
-    }
-  });
+  fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
+    .then(res => res.json())
+    .then(data => {
+      const events = (data.events || []).filter(e =>
+        e.strLeague?.toLowerCase().includes("championship") &&
+        e.strHomeTeam && e.strAwayTeam
+      );
+
+      const ticker = document.getElementById("top-ticker");
+      if (ticker && events.length > 0) {
+        const event = events[0]; // Only the next valid one
+        ticker.innerText = `${event.dateEvent} - ${event.strHomeTeam} vs ${event.strAwayTeam}`;
+      } else {
+        ticker.innerText = "No upcoming matches available.";
+      }
+    });
 }
+
 
   function fetchPrevious() {
     fetch(`https://www.thesportsdb.com/api/v1/json/${API_KEY}/eventslast.php?id=${TEAM_ID}`)
