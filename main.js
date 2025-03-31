@@ -23,37 +23,32 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchPrevious();
     fetchLineups();
   }
-
 function fetchUpcoming() {
   fetch("https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=133836")
     .then(res => res.json())
     .then(data => {
-      const events = (data.events || []).filter(e =>
-        e.strHomeTeam?.toLowerCase().includes("plymouth") ||
-        e.strAwayTeam?.toLowerCase().includes("plymouth")
-      );
+      const events = (data.events || []).filter(e => {
+        const home = e.strHomeTeam?.toLowerCase() || "";
+        const away = e.strAwayTeam?.toLowerCase() || "";
+        return home.includes("plymouth") || away.includes("plymouth");
+      });
 
-      // Sort by date
+      // Sort by date just in case
       events.sort((a, b) => new Date(a.dateEvent) - new Date(b.dateEvent));
-
-      // [Optional] Debug log
-      console.log("Filtered Upcoming Events:");
-      events.forEach(e =>
-        console.log(`${e.dateEvent} - ${e.strHomeTeam} vs ${e.strAwayTeam} [${e.idEvent}]`)
-      );
 
       const ticker = document.getElementById("top-ticker");
       if (ticker && events.length > 0) {
-        // Display next 3 matches
-        const upcoming = events.slice(0, 3).map(e =>
-          `${e.dateEvent} – ${e.strHomeTeam} vs ${e.strAwayTeam}`
-        );
-        ticker.innerText = upcoming.join("   •   ");
+        const upcoming = events.slice(0, 3).map(e => {
+          const text = `${e.dateEvent} – ${e.strHomeTeam} vs ${e.strAwayTeam}`;
+          return `<a href='https://www.thesportsdb.com/event/${e.idEvent}' target='_blank'>${text}</a>`;
+        });
+        ticker.innerHTML = upcoming.join(" &nbsp;•&nbsp; ");
       } else {
         ticker.innerText = "No upcoming Plymouth matches available.";
       }
     });
 }
+
 
 
   function fetchPrevious() {
