@@ -9,7 +9,7 @@ body {
 .ticker-container {
   width: 100%;
   overflow: hidden;
-  white-space: nowrap;
+  position: relative;
   background-color: black;
   padding: 10px 0;
 }
@@ -18,15 +18,16 @@ body {
   display: inline-block;
   animation: scroll-left 30s linear infinite;
   will-change: transform;
-  background-color: green;
+  white-space: nowrap;
+  min-width: 200%;
 }
 
 @keyframes scroll-left {
   0% {
-    transform: translateX(100vw);
+    transform: translateX(0%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
